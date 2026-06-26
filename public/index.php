@@ -1,13 +1,32 @@
 <?php
+
 session_start();
 
-// Error reporting (remove or change in production)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once __DIR__ . '/../app/config/config.php';
+require_once __DIR__ . '/../app/config/database.php';
 
-// Site settings
-define('SITE_NAME', 'SGR Ticketing System');
-define('BASE_URL', 'http://localhost/ticket-system');
+$controller = $_GET['a'] ?? 'home';
 
-// Load Homepage
-require_once __DIR__ . '/../app/views/home/home.php';
+$controllerMap = [
+    'home'     => 'HomeController',
+    'auth'     => 'AuthController',
+    'dashboard'=> 'DashboardController',
+];
+
+if (!isset($controllerMap[$controller])) {
+    die('Page not found');
+}
+
+$controllerName = $controllerMap[$controller];
+
+$action = $_GET['action'] ?? 'index';
+
+require_once __DIR__ . '/../app/controllers/' . $controllerName . '.php';
+
+$controller = new $controllerName();
+
+if (!method_exists($controller, $action)) {
+    die('Method not found');
+}
+
+$controller->$action();
